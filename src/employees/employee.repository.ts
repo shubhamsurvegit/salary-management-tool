@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Employee } from './entities/employee.entity';
+import { SalaryInsightsQueryDto } from '../salary-insights/dto/salary-insights-query.dto';
+import { SalaryStatsRow } from '../salary-insights/types/salary-stats.row';
 
 @Injectable()
 export class EmployeeRepository {
@@ -46,5 +48,53 @@ export class EmployeeRepository {
 
   async delete(id: number): Promise<void> {
     await this.repository.delete(id);
+  }
+
+  async getSalaryStats(
+    filters: SalaryInsightsQueryDto,
+  ): Promise<SalaryStatsRow | null> {
+    const query = this.repository
+      .createQueryBuilder('employee')
+      .select('MIN(employee.salary)', 'minimumSalary')
+      .addSelect('MAX(employee.salary)', 'maximumSalary')
+      .addSelect('AVG(employee.salary)', 'averageSalary')
+      .addSelect('COUNT(employee.id)', 'employeeCount');
+
+    if (filters.country) {
+      query.andWhere('employee.country = :country', {
+        country: filters.country,
+      });
+    }
+
+    if (filters.jobTitle) {
+      query.andWhere('employee.jobTitle = :jobTitle', {
+        jobTitle: filters.jobTitle,
+      });
+    }
+
+    if (filters.department) {
+      query.andWhere('employee.department = :department', {
+        department: filters.department,
+      });
+    }
+
+    const raw = await query.getRawOne<{
+      minimumSalary: string | null;
+      maximumSalary: string | null;
+      averageSalary: string | null;
+      employeeCount: string;
+    }>();
+
+    const employeeCount = Number(raw?.employeeCount ?? 0);
+    if (employeeCount === 0) {
+      return null;
+    }
+
+    return {
+      employeeCount,
+      minSalary: parseFloat(raw!.minimumSalary ?? '0'),
+      maxSalary: parseFloat(raw!.maximumSalary ?? '0'),
+      averageSalary: parseFloat(raw!.averageSalary ?? '0'),
+    };
   }
 }
