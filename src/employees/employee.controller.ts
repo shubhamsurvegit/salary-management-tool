@@ -1,13 +1,16 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { EmployeeService } from './employee.service';
 import { Employee } from './entities/employee.entity';
@@ -32,5 +35,18 @@ export class EmployeeController {
   @Get(':id')
   findById(@Param('id', ParseIntPipe) id: number): Promise<Employee> {
     return this.employeeService.findById(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateEmployeeDto,
+  ): Promise<Employee> {
+    return this.employeeService.update(id, dto);
+  }
+
+  @Delete(':id')
+  delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.employeeService.delete(id);
   }
 }

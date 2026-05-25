@@ -14,6 +14,8 @@ describe('EmployeeService', () => {
     findByEmail: jest.fn(),
     findAll: jest.fn(),
     findById: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
   };
 
   const employee: Employee = {
@@ -114,6 +116,62 @@ describe('EmployeeService', () => {
       mockRepository.findById.mockResolvedValue(null);
 
       await expect(service.findById(99)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('update', () => {
+    const updateDto = { fullName: 'Jane Doe' };
+
+    it('updates and returns the employee when found', async () => {
+      const updatedEmployee = { ...employee, fullName: 'Jane Doe' };
+      mockRepository.findById.mockResolvedValue(employee);
+      mockRepository.update.mockResolvedValue(updatedEmployee);
+
+      await expect(service.update(1, updateDto)).resolves.toEqual(
+        updatedEmployee,
+      );
+
+      expect(mockRepository.findById).toHaveBeenCalledWith(1);
+      expect(mockRepository.update).toHaveBeenCalledWith(1, updateDto);
+    });
+
+    it('throws NotFoundException when employee does not exist', async () => {
+      mockRepository.findById.mockResolvedValue(null);
+
+      await expect(service.update(99, updateDto)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('throws ConflictException when email is taken by another employee', async () => {
+      const otherEmployee = { ...employee, id: 2, email: 'jane@example.com' };
+      mockRepository.findById.mockResolvedValue(employee);
+      mockRepository.findByEmail.mockResolvedValue(otherEmployee);
+
+      await expect(
+        service.update(1, { email: 'jane@example.com' }),
+      ).rejects.toThrow(ConflictException);
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('delete', () => {
+    it('deletes the employee when found', async () => {
+      mockRepository.findById.mockResolvedValue(employee);
+      mockRepository.delete.mockResolvedValue(undefined);
+
+      await expect(service.delete(1)).resolves.toBeUndefined();
+
+      expect(mockRepository.findById).toHaveBeenCalledWith(1);
+      expect(mockRepository.delete).toHaveBeenCalledWith(1);
+    });
+
+    it('throws NotFoundException when employee does not exist', async () => {
+      mockRepository.findById.mockResolvedValue(null);
+
+      await expect(service.delete(99)).rejects.toThrow(NotFoundException);
+      expect(mockRepository.delete).not.toHaveBeenCalled();
     });
   });
 });

@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeRepository } from './employee.repository';
 import { Employee } from './entities/employee.entity';
 import { PaginatedEmployeesResult } from './types/paginated-employees.result';
@@ -49,5 +50,34 @@ export class EmployeeService {
     }
 
     return employee;
+  }
+
+  async update(id: number, dto: UpdateEmployeeDto): Promise<Employee> {
+    await this.findById(id);
+
+    if (dto.email) {
+      const existing = await this.employeeRepository.findByEmail(dto.email);
+      if (existing && existing.id !== id) {
+        throw new ConflictException(
+          `Employee with email ${dto.email} already exists`,
+        );
+      }
+    }
+
+    const updated = await this.employeeRepository.update(id, {
+      ...dto,
+      joiningDate: dto.joiningDate ? new Date(dto.joiningDate) : undefined,
+    });
+
+    if (!updated) {
+      throw new NotFoundException(`Employee with id ${id} not found`);
+    }
+
+    return updated;
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.findById(id);
+    await this.employeeRepository.delete(id);
   }
 }
