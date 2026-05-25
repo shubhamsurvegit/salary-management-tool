@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { EmployeeService } from './employee.service';
 import { Employee } from './entities/employee.entity';
+import { PaginatedEmployeesResult } from './types/paginated-employees.result';
 
 @Controller('employees')
 export class EmployeeController {
@@ -13,7 +15,9 @@ export class EmployeeController {
   }
 
   @Get()
-  findAll(): Promise<Employee[]> {
-    return this.employeeService.findAll();
+  findAll(
+    @Query() query: PaginationQueryDto,
+  ): Promise<PaginatedEmployeesResult> {
+    return this.employeeService.findAll(query.page, query.limit);
   }
 }

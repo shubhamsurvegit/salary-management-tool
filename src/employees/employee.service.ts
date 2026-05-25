@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { EmployeeRepository } from './employee.repository';
 import { Employee } from './entities/employee.entity';
+import { PaginatedEmployeesResult } from './types/paginated-employees.result';
 
 @Injectable()
 export class EmployeeService {
@@ -25,7 +26,15 @@ export class EmployeeService {
     return this.employeeRepository.save(employee);
   }
 
-  findAll(): Promise<Employee[]> {
-    return this.employeeRepository.findAll();
+  async findAll(page = 1, limit = 10): Promise<PaginatedEmployeesResult> {
+    const { data, total } = await this.employeeRepository.findAll(page, limit);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }

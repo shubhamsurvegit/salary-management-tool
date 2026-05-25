@@ -18,8 +18,17 @@ export class EmployeeRepository {
     return this.repository.save(employee);
   }
 
-  findAll(): Promise<Employee[]> {
-    return this.repository.find({ order: { id: 'ASC' } });
+  async findAll(
+    page: number,
+    limit: number,
+  ): Promise<{ data: Employee[]; total: number }> {
+    const [data, total] = await this.repository.findAndCount({
+      order: { id: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { data, total };
   }
 
   findById(id: number): Promise<Employee | null> {

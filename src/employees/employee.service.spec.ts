@@ -82,12 +82,21 @@ describe('EmployeeService', () => {
   });
 
   describe('findAll', () => {
-    it('returns all employees', async () => {
-      mockRepository.findAll.mockResolvedValue([employee]);
+    it('returns paginated employees', async () => {
+      mockRepository.findAll.mockResolvedValue({
+        data: [employee],
+        total: 25,
+      });
 
-      await expect(service.findAll()).resolves.toEqual([employee]);
+      await expect(service.findAll(2, 10)).resolves.toEqual({
+        data: [employee],
+        total: 25,
+        page: 2,
+        limit: 10,
+        totalPages: 3,
+      });
 
-      expect(mockRepository.findAll).toHaveBeenCalled();
+      expect(mockRepository.findAll).toHaveBeenCalledWith(2, 10);
     });
   });
 });
