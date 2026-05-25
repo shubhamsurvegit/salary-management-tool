@@ -10,7 +10,7 @@ export class SalaryInsightsController {
   @Get()
   async getSalaryInsights(
     @Query() query: SalaryInsightsQueryDto,
-  ): Promise<SalaryStatsRow | null> {
+  ): Promise<SalaryStatsRow> {
     return this.insightsService.getSalaryInsights(query);
   }
 }

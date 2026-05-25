@@ -67,5 +67,18 @@ describe('SalaryInsightsService', () => {
         department: 'Engineering',
       });
     });
+
+    it('returns zeroed stats when no employees match the filters', async () => {
+      mockRepository.getSalaryStats.mockResolvedValue(null);
+
+      await expect(
+        service.getSalaryInsights({ country: 'Antarctica' }),
+      ).resolves.toEqual({
+        employeeCount: 0,
+        minSalary: 0,
+        maxSalary: 0,
+        averageSalary: 0,
+      });
+    });
   });
 });

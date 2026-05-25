@@ -9,7 +9,16 @@ export class SalaryInsightsService {
 
   async getSalaryInsights(
     filters: SalaryInsightsQueryDto,
-  ): Promise<SalaryStatsRow | null> {
-    return this.employeeRepository.getSalaryStats(filters);
+  ): Promise<SalaryStatsRow> {
+    const stats = await this.employeeRepository.getSalaryStats(filters);
+
+    return (
+      stats ?? {
+        employeeCount: 0,
+        minSalary: 0,
+        maxSalary: 0,
+        averageSalary: 0,
+      }
+    );
   }
 }
