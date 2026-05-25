@@ -4,9 +4,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { databaseConfig } from './config/database.config';
 import { EmployeesModule } from './employees/employees.module';
+import { SalaryInsightsModule } from './salary-insights/salary-insights.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(databaseConfig), EmployeesModule],
+  imports: [
+    TypeOrmModule.forRoot(databaseConfig),
+    EmployeesModule,
+    SalaryInsightsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
