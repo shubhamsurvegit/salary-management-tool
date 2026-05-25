@@ -24,9 +24,12 @@ export async function request<T>(
         ...options?.headers,
       },
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
     throw new ApiError(
-      'Cannot reach the server. Make sure the API is running on port 4000.',
+      'Cannot reach the server. Start the API (cd server && npm run start:dev) and check NEXT_PUBLIC_API_URL in web/.env.local.',
     );
   }
 

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { EmployeeTable } from '@/components/employees/EmployeeTable';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Loading } from '@/components/ui/Loading';
@@ -8,47 +9,44 @@ import { employeesApi } from '@/lib/api/employees';
 import { ApiError } from '@/lib/errors';
 import type { PaginatedEmployeesResult } from '@/types/employee';
 
+const PAGE_SIZE = 10;
+
 export default function EmployeesPage() {
+  const [page, setPage] = useState(1);
   const [result, setResult] = useState<PaginatedEmployeesResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await employeesApi.list({ page: 1, limit: 10 });
-        if (!cancelled) {
-          setResult(data);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof ApiError ? err.message : 'Failed to load employees.',
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
+  const loadEmployees = useCallback(async (pageToLoad: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await employeesApi.list({ page: pageToLoad, limit: PAGE_SIZE });
+      setResult(data);
+    } catch (err) {
+      setResult(null);
+      setError(
+        err instanceof ApiError ? err.message : 'Failed to load employees.',
+      );
+    } finally {
+      setLoading(false);
     }
-
-    void load();
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    void loadEmployees(page);
+  }, [page, loadEmployees]);
+
+  const totalPages = result?.totalPages ?? 1;
 
   return (
     <section>
       <header className="page-header">
         <h1>Employees</h1>
         <p className="page-header__subtitle">
-          Manage employee records. List and CRUD flows come in the next steps.
+          {result
+            ? `${result.total.toLocaleString()} employees total`
+            : 'Employee directory'}
         </p>
       </header>
 
@@ -57,14 +55,34 @@ export default function EmployeesPage() {
       {!loading && !error && result?.data.length === 0 && (
         <EmptyState
           title="No employees yet"
-          description="Add employees via the API or run the seed script."
+          description="Add employees in the next step or run the seed script."
         />
       )}
       {!loading && !error && result && result.data.length > 0 && (
-        <p className="api-smoke-test">
-          API connected — {result.total.toLocaleString()} employees in database
-          (showing page {result.page} of {result.totalPages}).
-        </p>
+        <>
+          <EmployeeTable employees={result.data} />
+          <div className="pagination">
+            <button
+              type="button"
+              className="button"
+              disabled={page <= 1}
+              onClick={() => setPage((current) => current - 1)}
+            >
+              Previous
+            </button>
+            <span className="pagination__info">
+              Page {result.page} of {totalPages}
+            </span>
+            <button
+              type="button"
+              className="button"
+              disabled={page >= totalPages}
+              onClick={() => setPage((current) => current + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
     </section>
   );
