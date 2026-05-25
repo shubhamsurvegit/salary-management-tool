@@ -2,3 +2,12 @@ node_modules
 dist
 .env
 coverage
+
+server/node_modules
+server/dist
+server/coverage
+server/.env
+
+web/node_modules
+web/dist
+web/.env
