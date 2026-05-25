@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { EmployeeRepository } from './employee.repository';
+import {
+  EmployeeListFilters,
+  EmployeeRepository,
+} from './employee.repository';
 import { Employee } from './entities/employee.entity';
 import { PaginatedEmployeesResult } from './types/paginated-employees.result';
 
@@ -31,8 +34,16 @@ export class EmployeeService {
     return this.employeeRepository.save(employee);
   }
 
-  async findAll(page = 1, limit = 10): Promise<PaginatedEmployeesResult> {
-    const { data, total } = await this.employeeRepository.findAll(page, limit);
+  async findAll(
+    page = 1,
+    limit = 10,
+    filters: EmployeeListFilters = {},
+  ): Promise<PaginatedEmployeesResult> {
+    const { data, total } = await this.employeeRepository.findAll(
+      page,
+      limit,
+      filters,
+    );
 
     return {
       data,

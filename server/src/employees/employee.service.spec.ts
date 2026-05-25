@@ -99,7 +99,24 @@ describe('EmployeeService', () => {
         totalPages: 3,
       });
 
-      expect(mockRepository.findAll).toHaveBeenCalledWith(2, 10);
+      expect(mockRepository.findAll).toHaveBeenCalledWith(2, 10, {});
+    });
+
+    it('passes optional filters to the repository', async () => {
+      mockRepository.findAll.mockResolvedValue({
+        data: [employee],
+        total: 1,
+      });
+
+      const filters = {
+        country: 'India',
+        jobTitle: 'Software Engineer',
+        department: 'Engineering',
+      };
+
+      await service.findAll(1, 10, filters);
+
+      expect(mockRepository.findAll).toHaveBeenCalledWith(1, 10, filters);
     });
   });
 

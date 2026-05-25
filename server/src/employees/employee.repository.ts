@@ -5,6 +5,11 @@ import { Employee } from './entities/employee.entity';
 import { SalaryInsightsQueryDto } from '../salary-insights/dto/salary-insights-query.dto';
 import { SalaryStatsRow } from '../salary-insights/types/salary-stats.row';
 
+export type EmployeeListFilters = Pick<
+  SalaryInsightsQueryDto,
+  'country' | 'jobTitle' | 'department'
+>;
+
 @Injectable()
 export class EmployeeRepository {
   constructor(
@@ -23,13 +28,33 @@ export class EmployeeRepository {
   async findAll(
     page: number,
     limit: number,
+    filters: EmployeeListFilters = {},
   ): Promise<{ data: Employee[]; total: number }> {
-    const [data, total] = await this.repository.findAndCount({
-      order: { id: 'ASC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    const query = this.repository.createQueryBuilder('employee');
 
+    if (filters.country) {
+      query.andWhere('employee.country = :country', {
+        country: filters.country,
+      });
+    }
+
+    if (filters.jobTitle) {
+      query.andWhere('employee.jobTitle = :jobTitle', {
+        jobTitle: filters.jobTitle,
+      });
+    }
+
+    if (filters.department) {
+      query.andWhere('employee.department = :department', {
+        department: filters.department,
+      });
+    }
+
+    query.orderBy('employee.id', 'ASC');
+    query.skip((page - 1) * limit);
+    query.take(limit);
+
+    const [data, total] = await query.getManyAndCount();
     return { data, total };
   }
 

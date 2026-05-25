@@ -9,6 +9,9 @@ import { buildQuery, request } from './client';
 export type ListEmployeesParams = {
   page?: number;
   limit?: number;
+  country?: string;
+  jobTitle?: string;
+  department?: string;
 };
 
 export const employeesApi = {
@@ -16,6 +19,9 @@ export const employeesApi = {
     const query = buildQuery({
       page: params.page ?? 1,
       limit: params.limit ?? 10,
+      country: params.country,
+      jobTitle: params.jobTitle,
+      department: params.department,
     });
     return request<PaginatedEmployeesResult>(`/employees${query}`);
   },

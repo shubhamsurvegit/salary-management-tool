@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { ListEmployeesQueryDto } from './dto/list-employees-query.dto';
 import { EmployeeService } from './employee.service';
 import { Employee } from './entities/employee.entity';
 import { PaginatedEmployeesResult } from './types/paginated-employees.result';
@@ -27,9 +27,14 @@ export class EmployeeController {
 
   @Get()
   findAll(
-    @Query() query: PaginationQueryDto,
+    @Query() query: ListEmployeesQueryDto,
   ): Promise<PaginatedEmployeesResult> {
-    return this.employeeService.findAll(query.page, query.limit);
+    const { page, limit, country, jobTitle, department } = query;
+    return this.employeeService.findAll(page, limit, {
+      country,
+      jobTitle,
+      department,
+    });
   }
 
   @Get(':id')

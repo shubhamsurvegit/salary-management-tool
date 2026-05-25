@@ -5,6 +5,7 @@ type CountrySelectProps = {
   onChange: (value: string) => void;
   disabled?: boolean;
   id?: string;
+  includeAll?: boolean;
 };
 
 export function CountrySelect({
@@ -12,6 +13,7 @@ export function CountrySelect({
   onChange,
   disabled = false,
   id,
+  includeAll = false,
 }: CountrySelectProps) {
   return (
     <select
@@ -20,11 +22,15 @@ export function CountrySelect({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       disabled={disabled}
-      required
+      required={!includeAll}
     >
-      <option value="" disabled>
-        Select country
-      </option>
+      {includeAll ? (
+        <option value="">All countries</option>
+      ) : (
+        <option value="" disabled>
+          Select country
+        </option>
+      )}
       {COUNTRIES.map((country) => (
         <option key={country} value={country}>
           {country}
