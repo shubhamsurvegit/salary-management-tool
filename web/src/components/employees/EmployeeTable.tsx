@@ -3,13 +3,14 @@ import { TableShell } from '@/components/ui/TableShell';
 
 type EmployeeTableProps = {
   employees: Employee[];
+  onEdit: (employee: Employee) => void;
 };
 
 function formatSalary(amount: number, currency: string): string {
   return `${currency} ${amount.toLocaleString()}`;
 }
 
-export function EmployeeTable({ employees }: EmployeeTableProps) {
+export function EmployeeTable({ employees, onEdit }: EmployeeTableProps) {
   return (
     <TableShell>
       <table className="data-table">
@@ -21,6 +22,7 @@ export function EmployeeTable({ employees }: EmployeeTableProps) {
             <th>Department</th>
             <th>Salary</th>
             <th>Status</th>
+            <th />
           </tr>
         </thead>
         <tbody>
@@ -32,6 +34,15 @@ export function EmployeeTable({ employees }: EmployeeTableProps) {
               <td>{employee.department ?? '—'}</td>
               <td>{formatSalary(employee.salary, employee.currency)}</td>
               <td>{employee.isActive ? 'Active' : 'Inactive'}</td>
+              <td>
+                <button
+                  type="button"
+                  className="button button--small"
+                  onClick={() => onEdit(employee)}
+                >
+                  Edit
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

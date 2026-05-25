@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { EditEmployeeModal } from '@/components/employees/EditEmployeeModal';
 import { EmployeeForm } from '@/components/employees/EmployeeForm';
 import { EmployeeTable } from '@/components/employees/EmployeeTable';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -8,7 +9,7 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Loading } from '@/components/ui/Loading';
 import { employeesApi } from '@/lib/api/employees';
 import { ApiError } from '@/lib/errors';
-import type { PaginatedEmployeesResult } from '@/types/employee';
+import type { Employee, PaginatedEmployeesResult } from '@/types/employee';
 
 const PAGE_SIZE = 10;
 
@@ -17,6 +18,7 @@ export default function EmployeesPage() {
   const [result, setResult] = useState<PaginatedEmployeesResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
   const loadEmployees = useCallback(async (pageToLoad: number) => {
     setLoading(true);
@@ -75,7 +77,10 @@ export default function EmployeesPage() {
       )}
       {!loading && !error && result && result.data.length > 0 && (
         <>
-          <EmployeeTable employees={result.data} />
+          <EmployeeTable
+            employees={result.data}
+            onEdit={setEditingEmployee}
+          />
           <div className="pagination">
             <button
               type="button"
@@ -98,6 +103,14 @@ export default function EmployeesPage() {
             </button>
           </div>
         </>
+      )}
+
+      {editingEmployee && (
+        <EditEmployeeModal
+          employee={editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          onUpdated={() => void loadEmployees(page)}
+        />
       )}
     </section>
   );
