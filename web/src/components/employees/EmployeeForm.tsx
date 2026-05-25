@@ -1,7 +1,10 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { CountrySelect } from '@/components/CountrySelect';
+import { SalaryInput } from '@/components/SalaryInput';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { DEFAULT_COUNTRY } from '@/constants/countries';
 import { employeesApi } from '@/lib/api/employees';
 import { ApiError } from '@/lib/errors';
 import type { CreateEmployeeInput } from '@/types/employee';
@@ -15,7 +18,7 @@ const initialForm = {
   email: '',
   jobTitle: '',
   department: '',
-  country: '',
+  country: DEFAULT_COUNTRY,
   salary: '',
   joiningDate: '',
 };
@@ -120,19 +123,17 @@ export function EmployeeForm({ onCreated }: EmployeeFormProps) {
         </label>
         <label className="field">
           Country *
-          <input
+          <CountrySelect
             value={form.country}
-            onChange={(e) => updateField('country', e.target.value)}
+            onChange={(value) => updateField('country', value)}
             disabled={submitting}
           />
         </label>
         <label className="field">
           Salary *
-          <input
-            type="number"
-            min="0"
+          <SalaryInput
             value={form.salary}
-            onChange={(e) => updateField('salary', e.target.value)}
+            onChange={(value) => updateField('salary', value)}
             disabled={submitting}
           />
         </label>

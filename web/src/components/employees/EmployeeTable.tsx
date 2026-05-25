@@ -1,4 +1,5 @@
 import type { Employee } from '@/types/employee';
+import { formatSalary } from '@/lib/format';
 import { TableShell } from '@/components/ui/TableShell';
 
 type EmployeeTableProps = {
@@ -7,10 +8,6 @@ type EmployeeTableProps = {
   onDelete: (employee: Employee) => void;
   deletingId?: number | null;
 };
-
-function formatSalary(amount: number, currency: string): string {
-  return `${currency} ${amount.toLocaleString()}`;
-}
 
 export function EmployeeTable({
   employees,

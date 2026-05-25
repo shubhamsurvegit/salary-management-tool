@@ -1,6 +1,8 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { CountrySelect } from '@/components/CountrySelect';
+import { SalaryInput } from '@/components/SalaryInput';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { employeesApi } from '@/lib/api/employees';
@@ -118,23 +120,22 @@ export function EditEmployeeModal({
           </label>
           <label className="field">
             Country
-            <input
+            <CountrySelect
               value={form.country}
-              onChange={(e) =>
-                setForm((current) => ({ ...current, country: e.target.value }))
+              onChange={(value) =>
+                setForm((current) => ({ ...current, country: value }))
               }
               disabled={submitting}
             />
           </label>
           <label className="field">
             Salary
-            <input
-              type="number"
-              min="0"
+            <SalaryInput
               value={form.salary}
-              onChange={(e) =>
-                setForm((current) => ({ ...current, salary: e.target.value }))
+              onChange={(value) =>
+                setForm((current) => ({ ...current, salary: value }))
               }
+              currency={employee.currency}
               disabled={submitting}
             />
           </label>
