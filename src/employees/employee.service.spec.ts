@@ -12,6 +12,7 @@ describe('EmployeeService', () => {
     create: jest.fn(),
     save: jest.fn(),
     findByEmail: jest.fn(),
+    findAll: jest.fn(),
   };
 
   const employee: Employee = {
@@ -77,6 +78,16 @@ describe('EmployeeService', () => {
       );
       expect(mockRepository.create).not.toHaveBeenCalled();
       expect(mockRepository.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('findAll', () => {
+    it('returns all employees', async () => {
+      mockRepository.findAll.mockResolvedValue([employee]);
+
+      await expect(service.findAll()).resolves.toEqual([employee]);
+
+      expect(mockRepository.findAll).toHaveBeenCalled();
     });
   });
 });

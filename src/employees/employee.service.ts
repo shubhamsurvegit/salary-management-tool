@@ -24,4 +24,8 @@ export class EmployeeService {
 
     return this.employeeRepository.save(employee);
   }
+
+  findAll(): Promise<Employee[]> {
+    return this.employeeRepository.findAll();
+  }
 }
