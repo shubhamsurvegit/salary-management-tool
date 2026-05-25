@@ -1,4 +1,4 @@
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { EmployeeRepository } from './employee.repository';
@@ -13,6 +13,7 @@ describe('EmployeeService', () => {
     save: jest.fn(),
     findByEmail: jest.fn(),
     findAll: jest.fn(),
+    findById: jest.fn(),
   };
 
   const employee: Employee = {
@@ -97,6 +98,22 @@ describe('EmployeeService', () => {
       });
 
       expect(mockRepository.findAll).toHaveBeenCalledWith(2, 10);
+    });
+  });
+
+  describe('findById', () => {
+    it('returns an employee when found', async () => {
+      mockRepository.findById.mockResolvedValue(employee);
+
+      await expect(service.findById(1)).resolves.toEqual(employee);
+
+      expect(mockRepository.findById).toHaveBeenCalledWith(1);
+    });
+
+    it('throws NotFoundException when employee does not exist', async () => {
+      mockRepository.findById.mockResolvedValue(null);
+
+      await expect(service.findById(99)).rejects.toThrow(NotFoundException);
     });
   });
 });

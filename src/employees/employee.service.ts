@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { EmployeeRepository } from './employee.repository';
 import { Employee } from './entities/employee.entity';
@@ -36,5 +40,14 @@ export class EmployeeService {
       limit,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  async findById(id: number): Promise<Employee> {
+    const employee = await this.employeeRepository.findById(id);
+    if (!employee) {
+      throw new NotFoundException(`Employee with id ${id} not found`);
+    }
+
+    return employee;
   }
 }
