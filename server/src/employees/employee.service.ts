@@ -5,10 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import {
-  EmployeeListFilters,
-  EmployeeRepository,
-} from './employee.repository';
+import { EmployeeListFilters, EmployeeRepository } from './employee.repository';
 import { Employee } from './entities/employee.entity';
 import { PaginatedEmployeesResult } from './types/paginated-employees.result';
 
