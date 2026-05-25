@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { EmployeeForm } from '@/components/employees/EmployeeForm';
 import { EmployeeTable } from '@/components/employees/EmployeeTable';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
@@ -21,7 +22,10 @@ export default function EmployeesPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await employeesApi.list({ page: pageToLoad, limit: PAGE_SIZE });
+      const data = await employeesApi.list({
+        page: pageToLoad,
+        limit: PAGE_SIZE,
+      });
       setResult(data);
     } catch (err) {
       setResult(null);
@@ -37,6 +41,15 @@ export default function EmployeesPage() {
     void loadEmployees(page);
   }, [page, loadEmployees]);
 
+  async function handleEmployeeCreated() {
+    try {
+      const summary = await employeesApi.list({ page: 1, limit: PAGE_SIZE });
+      setPage(summary.totalPages);
+    } catch {
+      void loadEmployees(page);
+    }
+  }
+
   const totalPages = result?.totalPages ?? 1;
 
   return (
@@ -50,12 +63,14 @@ export default function EmployeesPage() {
         </p>
       </header>
 
+      <EmployeeForm onCreated={() => void handleEmployeeCreated()} />
+
       {loading && <Loading label="Loading employees…" />}
       {error && <ErrorMessage message={error} />}
       {!loading && !error && result?.data.length === 0 && (
         <EmptyState
           title="No employees yet"
-          description="Add employees in the next step or run the seed script."
+          description="Add an employee using the form above."
         />
       )}
       {!loading && !error && result && result.data.length > 0 && (
