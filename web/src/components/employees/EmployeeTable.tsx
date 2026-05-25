@@ -4,13 +4,20 @@ import { TableShell } from '@/components/ui/TableShell';
 type EmployeeTableProps = {
   employees: Employee[];
   onEdit: (employee: Employee) => void;
+  onDelete: (employee: Employee) => void;
+  deletingId?: number | null;
 };
 
 function formatSalary(amount: number, currency: string): string {
   return `${currency} ${amount.toLocaleString()}`;
 }
 
-export function EmployeeTable({ employees, onEdit }: EmployeeTableProps) {
+export function EmployeeTable({
+  employees,
+  onEdit,
+  onDelete,
+  deletingId = null,
+}: EmployeeTableProps) {
   return (
     <TableShell>
       <table className="data-table">
@@ -34,13 +41,22 @@ export function EmployeeTable({ employees, onEdit }: EmployeeTableProps) {
               <td>{employee.department ?? '—'}</td>
               <td>{formatSalary(employee.salary, employee.currency)}</td>
               <td>{employee.isActive ? 'Active' : 'Inactive'}</td>
-              <td>
+              <td className="table-actions">
                 <button
                   type="button"
                   className="button button--small"
                   onClick={() => onEdit(employee)}
+                  disabled={deletingId === employee.id}
                 >
                   Edit
+                </button>
+                <button
+                  type="button"
+                  className="button button--small button--danger"
+                  onClick={() => onDelete(employee)}
+                  disabled={deletingId === employee.id}
+                >
+                  {deletingId === employee.id ? 'Deleting…' : 'Delete'}
                 </button>
               </td>
             </tr>

@@ -205,6 +205,17 @@ a {
   font-size: 0.85rem;
 }
 
+.button--danger {
+  color: var(--error-fg);
+  border-color: var(--error-fg);
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
 .employee-form--modal {
   margin-bottom: 0;
   padding: 0;

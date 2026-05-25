@@ -158,20 +158,18 @@ describe('EmployeeService', () => {
 
   describe('delete', () => {
     it('deletes the employee when found', async () => {
-      mockRepository.findById.mockResolvedValue(employee);
-      mockRepository.delete.mockResolvedValue(undefined);
+      mockRepository.delete.mockResolvedValue(true);
 
       await expect(service.delete(1)).resolves.toBeUndefined();
 
-      expect(mockRepository.findById).toHaveBeenCalledWith(1);
       expect(mockRepository.delete).toHaveBeenCalledWith(1);
+      expect(mockRepository.findById).not.toHaveBeenCalled();
     });
 
     it('throws NotFoundException when employee does not exist', async () => {
-      mockRepository.findById.mockResolvedValue(null);
+      mockRepository.delete.mockResolvedValue(false);
 
       await expect(service.delete(99)).rejects.toThrow(NotFoundException);
-      expect(mockRepository.delete).not.toHaveBeenCalled();
     });
   });
 });

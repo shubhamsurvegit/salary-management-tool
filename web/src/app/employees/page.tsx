@@ -19,6 +19,7 @@ export default function EmployeesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const loadEmployees = useCallback(async (pageToLoad: number) => {
     setLoading(true);
@@ -52,6 +53,32 @@ export default function EmployeesPage() {
     }
   }
 
+  async function handleDelete(employee: Employee) {
+    const confirmed = window.confirm(
+      `Delete ${employee.fullName}? This cannot be undone.`,
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    setError(null);
+    setDeletingId(employee.id);
+    try {
+      await employeesApi.delete(employee.id);
+      if (result && result.data.length === 1 && page > 1) {
+        setPage((current) => current - 1);
+      } else {
+        await loadEmployees(page);
+      }
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : 'Failed to delete employee.',
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   const totalPages = result?.totalPages ?? 1;
 
   return (
@@ -80,6 +107,8 @@ export default function EmployeesPage() {
           <EmployeeTable
             employees={result.data}
             onEdit={setEditingEmployee}
+            onDelete={(employee) => void handleDelete(employee)}
+            deletingId={deletingId}
           />
           <div className="pagination">
             <button
