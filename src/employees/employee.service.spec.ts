@@ -1,3 +1,4 @@
+import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { EmployeeRepository } from './employee.repository';
@@ -10,6 +11,7 @@ describe('EmployeeService', () => {
   const mockRepository = {
     create: jest.fn(),
     save: jest.fn(),
+    findByEmail: jest.fn(),
   };
 
   const employee: Employee = {
@@ -51,11 +53,13 @@ describe('EmployeeService', () => {
 
   describe('create', () => {
     it('creates and returns a new employee', async () => {
+      mockRepository.findByEmail.mockResolvedValue(null);
       mockRepository.create.mockReturnValue(employee);
       mockRepository.save.mockResolvedValue(employee);
 
       await expect(service.create(createDto)).resolves.toEqual(employee);
 
+      expect(mockRepository.findByEmail).toHaveBeenCalledWith(createDto.email);
       expect(mockRepository.create).toHaveBeenCalledWith({
         ...createDto,
         currency: 'INR',
@@ -63,6 +67,16 @@ describe('EmployeeService', () => {
         joiningDate: new Date(createDto.joiningDate),
       });
       expect(mockRepository.save).toHaveBeenCalledWith(employee);
+    });
+
+    it('throws ConflictException when email already exists', async () => {
+      mockRepository.findByEmail.mockResolvedValue(employee);
+
+      await expect(service.create(createDto)).rejects.toThrow(
+        ConflictException,
+      );
+      expect(mockRepository.create).not.toHaveBeenCalled();
+      expect(mockRepository.save).not.toHaveBeenCalled();
     });
   });
 });
